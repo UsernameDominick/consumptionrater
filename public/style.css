@@ -393,6 +393,33 @@ html {
   scrollbar-color: #555 #2a2a2a;          /* thumb color, track color */
 }
 
+#profile-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* space between icon, username, and button */
+}
+
+#profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; /* optional to make it circular */
+  cursor: pointer;
+}
+
+#add-drink-btn {
+  /* Optional styling to match your theme */
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+}
+
+/* MOBILE: stack them vertically or keep them in a row with spacing */
+@media (max-width: 600px) {
+  #profile-section {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 600px) {
   /* Slightly larger base font for mobile (optional) */
   body {
