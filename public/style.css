@@ -1,0 +1,383 @@
+/* ===== GLOBAL RESET & THEME ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+header, footer {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+h1 {
+  font-size: 1.8rem;
+}
+#profile-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#profile-icon {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+#profile-username {
+  font-weight: bold;
+}
+main {
+  flex: 1;
+  padding: 1rem;
+}
+footer {
+  text-align: center;
+  color: #bbb;
+}
+
+/* ===== SEARCH & FILTER ===== */
+#search-filter-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+#search-input,
+#filter-select {
+  padding: 0.5rem;
+  background-color: #2f2f2f;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 4px;
+}
+
+/* ===== DRINKS GRID ===== */
+#drinks-container {
+  display: flex;
+  flex-wrap: wrap;         /* allow items to wrap onto new lines */
+  justify-content: center; /* center items horizontally */
+  gap: 1rem;               /* space between cards */
+  margin: 0 auto;
+}
+.drink-card {
+  max-width: 220px;   /* pick a width that fits your design */
+  text-align: center; /* center text and images inside the card */
+  margin: 1rem auto;
+  padding: 17px;
+}
+.drink-card:hover {
+  transform: scale(1.02);
+}
+.drink-card img {
+  max-width: 100%; /* ensures the image doesn’t overflow the card */
+  height: 200px;
+  display: block;
+  margin: 0 auto;
+  padding: 25px;
+}
+.drink-card .drink-name {
+  font-weight: bold;
+  margin-bottom: 0.2rem;
+  color: #f0f0f0;
+}
+.drink-card .average-rating {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* ===== MODALS ===== */
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 999;
+  left: 0; 
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+}
+.modal-content {
+  background-color: #333;
+  margin: 5% auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  color: #f0f0f0;
+}
+.close-button {
+  position: absolute;
+  top: 1rem; 
+  right: 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+/* 10-Star rating stylings */
+.star-rating {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+.star {
+  font-size: 1.5rem;
+  color: #777;
+  cursor: pointer;
+  margin-right: 4px;
+}
+.star.hovered,
+.star.selected {
+  color: #ffc107;
+}
+.rating-section textarea {
+  width: 100%;
+  height: 60px;
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Login */
+.modern-input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 0.75rem;
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 4px;
+}
+.modern-btn {
+  background-color: #3d84f5;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.modern-btn:hover {
+  background-color: #5da2ff;
+}
+.logout-btn {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: #e91e63;
+}
+.logout-btn:hover {
+  background-color: #f06292;
+}
+.error-text {
+  color: red;
+}
+
+#welcome-msg, #profile-stats {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.comment-text {
+  width: 300px;      /* Fixed width */
+  height: auto;     /* Fixed height */
+  overflow-y: auto;  /* Scroll if content exceeds height */
+}
+
+#comment-input {
+  width: 100%;      /* Fixed width */
+  height: 100px;     /* Fixed height */
+  resize: none;      /* Prevent user from resizing */
+  padding: 0.5rem;
+  border: 1px solid #444;
+  background-color: #1e1e1e;
+  color: #fff;
+}
+  
+/* Ratings list in profile */
+#my-ratings-list {
+  margin-top: 1rem;
+  overflow: scroll;
+  overflow-x: hidden;
+  max-height: 750px;
+}
+.rating-item {
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+#drink-image {
+  height: 250px;
+  margin: 0 auto;
+  align-items: center;
+  display: block;
+  max-width: 100%;
+}
+
+.popup-rating-info {
+  margin-bottom: 10px;
+}
+
+#all-reviews h2 {
+  text-decoration: underline;
+}
+
+#reviews-list {
+  list-style-type: none;
+  inline-size: 250px;
+  max-height: 750px;
+  width: auto;
+  overflow-y: auto;
+}
+
+#reviews-list li {
+  border: 1px solid rgb(47, 47, 47);
+  background-color: rgb(47, 47, 47);
+  border-radius: 10px;
+  margin: 10px;
+  margin-left: 0px;
+  padding: 15px;
+}
+
+#reviews-list li p {
+  white-space: pre-wrap;
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
+}
+
+.info-box-container {
+  display: flex;                /* Put boxes in a row */
+  justify-content: center;      /* Center them horizontally */
+  gap: 1rem;                    /* Spacing between boxes */
+  margin: 1rem 0;               /* Some vertical spacing around the container */
+}
+
+.info-box {
+  background-color: #2f2f2f;    /* A nice dark background */
+  padding: 1rem;
+  border-radius: 4px;
+  min-width: 100px;             /* Helps keep them from shrinking too small */
+  text-align: center;           /* Center the text inside the box */
+}
+
+/* Wrap stars & textarea in a vertical column */
+.star-and-comment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;         /* spacing between star rating & textarea */
+  margin-bottom: 1rem; /* some space below before the button */
+}
+
+/* Style the edit comment textarea to match your other text areas */
+#edit-comment-text {
+  width: 100%;
+  min-height: 80px;    /* or whatever height you want */
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.5rem;
+  resize: none;        /* prevents user from resizing */
+}
+
+.rating-item strong {
+  margin-bottom: 220px;
+}
+
+/* Small screens responsive */
+@media(max-width: 600px) {
+  .drink-popup-subtitle {
+    flex-direction: column;
+    align-items: center;
+  }
+  #profile-pic {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Container for each rated drink */
+.rating-item {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+/* Title for the drink name */
+.rating-item .drink-title {
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+/* Each entry in the drink's rating history */
+.rating-entry {
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed #555;
+  margin-bottom: 0.75rem;
+}
+
+/* Remove bottom border for the last entry in each item */
+.rating-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Spacing and styling for rating details */
+.rating-info {
+  margin-bottom: 0.5rem;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+/* Group the Edit and Delete buttons side by side */
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Style for the delete button specifically */
+.delete-btn {
+  background-color: #f44336;
+}
+.delete-btn:hover {
+  background-color: #e53935;
+}
+
+/* For Chrome, Safari, and other WebKit-based browsers */
+::-webkit-scrollbar {
+  width: 6px;                  /* Make scrollbar narrower */
+}
+
+::-webkit-scrollbar-track {
+  background: #2a2a2a;         /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #555;      /* Scrollbar thumb color */
+  border-radius: 3px;          /* Round edges */
+  border: 1px solid #444;      /* Optional border for contrast */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #777;      /* Slightly lighter on hover */
+}
+
+/* For Firefox (applies to the entire HTML document) */
+html {
+  scrollbar-width: thin;                   /* "auto" or "thin" */
+  scrollbar-color: #555 #2a2a2a;          /* thumb color, track color */
+}

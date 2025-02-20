@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Consumption Rater</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Consumption Rater</h1>
+    <div id="profile-section">
+      <img 
+        src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
+        alt="Profile Icon" 
+        id="profile-icon" 
+      />
+      <!-- Added missing element -->
+      <span id="profile-username" class="hidden"></span>
+    </div>
+  </header>
+
+  <main>
+    <section id="search-filter-container">
+      <input 
+        type="text" 
+        id="search-input" 
+        placeholder="Search drinks..." 
+        autocomplete="off"
+      />
+      <select id="filter-select">
+        <option value="none">No Filter</option>
+        <option value="highest-rating">Highest Rating</option>
+        <option value="lowest-rating">Lowest Rating</option>
+      </select>
+    </section>
+
+    <section id="drinks-container"></section>
+  </main>
+
+  <footer>
+    <p>© 2025 - Consumption Rater</p>
+  </footer>
+
+  <!-- LOGIN MODAL -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="close-login-modal">&times;</span>
+      <h2>Login</h2>
+      <input 
+        type="text" 
+        id="login-username" 
+        placeholder="Username" 
+        class="modern-input" 
+        autocomplete="off"
+      />
+      <input 
+        type="password" 
+        id="login-password" 
+        placeholder="Password" 
+        class="modern-input" 
+        autocomplete="new-password"
+      />
+      <button id="login-submit" class="modern-btn">Log In</button>
+      <p id="login-error" class="error-text"></p>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div id="profile-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="close-profile-modal">&times;</span>
+      <h2>Your Profile</h2>
+      <p id="welcome-msg"></p>
+      <div id="profile-stats"></div>
+      <!-- Search input to filter reviews in profile -->
+      <input 
+        type="text" 
+        id="profile-search" 
+        placeholder="Search your reviews..." 
+        autocomplete="off" 
+        class="modern-input"
+      />
+      <div id="my-ratings-list" class="profile-ratings-list"></div>
+      <button id="logout-btn" class="modern-btn logout-btn">Logout</button>
+    </div>
+  </div>
+
+<!-- DRINK POPUP -->
+<div id="drink-popup" class="modal">
+  <div class="modal-content drink-popup-content">
+    <span class="close-button" id="close-drink-popup">&times;</span>
+    <h2 id="drink-name"></h2>
+    <div class="drink-popup-subtitle">
+      <div class="image-container">
+        <img id="drink-image" alt="Energy Drink" />
+      </div>
+      <p id="drink-description"></p>
+    </div>
+    <div class="info-box-container">
+      <div class="info-box">
+        <h3>Average Rating</h3>
+        <p id="average-rating"></p>
+      </div>
+      <div class="info-box">
+        <h3>Brand</h3>
+        <p id="brand-info">Monster</p>
+      </div>
+      <div class="info-box">
+        <h3>Other Info</h3>
+        <p id="extra-info">Some extra data</p>
+      </div>
+    </div>
+    <div id="all-reviews">
+      <h2>Reviews</h2>
+      <ul id="reviews-list"></ul>
+    </div>
+    <div class="rating-section">
+      <div id="star-rating" class="star-rating"></div>
+      <textarea id="comment-input" placeholder="Your comment..."></textarea>
+      <button id="save-rating-btn" class="modern-btn">Save Rating</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT COMMENT MODAL -->
+<div id="edit-comment-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" id="close-edit-comment-modal">&times;</span>
+    <h2>Edit Review</h2>
+    
+    <!-- Ensure both drink id and timestamp are stored -->
+    <p id="edit-comment-desc" data-drink-id="" data-timestamp="">
+      <!-- Optionally, display info such as "Editing review from:" -->
+    </p>
+    
+    <!-- Vertical container for star rating and comment box -->
+    <div class="star-and-comment-container">
+      <div id="edit-star-rating" class="star-rating"></div>
+      <textarea id="edit-comment-text" rows="3"></textarea>
+    </div>
+    
+    <button id="save-edit-comment-btn" class="modern-btn">Save Changes</button>
+  </div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
