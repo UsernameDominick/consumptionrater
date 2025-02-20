@@ -323,7 +323,7 @@ function openDrinkPopup(drink) {
   drinkImageElem.src = (drink.image || "").replace(/"/g, '');
   drinkDescElem.textContent = drink.description || '';
   avgRatingElem.textContent = drink.averageRating || '0';
-
+  document.getElementById('extra-info').textContent = `${drink.caffeine || 0} mg`;
   renderAllReviews(drink);
 
   const userRating = drink.ratings.find(r => r.username === currentUser);
@@ -499,6 +499,53 @@ async function deleteReview(drinkId, reviewId) {
     console.error("Error deleting review:", error);
   }
 }
+
+// Get new drink modal elements
+const addDrinkBtn = document.getElementById('add-drink-btn');
+const addDrinkModal = document.getElementById('add-drink-modal');
+const closeAddDrinkModalBtn = document.getElementById('close-add-drink-modal');
+const addDrinkForm = document.getElementById('add-drink-form');
+const newDrinkCaffeineInput = document.getElementById('new-drink-caffeine');
+const newDrinkNameInput = document.getElementById('new-drink-name');
+const newDrinkDescInput = document.getElementById('new-drink-desc');
+
+// Open the add-drink modal when the button is clicked
+addDrinkBtn.addEventListener('click', () => {
+  openModal(addDrinkModal);
+});
+
+// Close the modal when the close button is clicked
+closeAddDrinkModalBtn.addEventListener('click', () => openModal(addDrinkModal, false));
+
+// Handle new drink form submission
+addDrinkForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = newDrinkNameInput.value.trim();
+  const caffeineVal = newDrinkCaffeineInput.value.trim(); // numeric input
+  if (!name || !caffeineVal) return;
+
+  try {
+    // Add the doc to Firestore with a "caffeine" field
+    const docRef = await addDoc(collection(db, "drinks"), {
+      name: name,
+      caffeine: parseInt(caffeineVal, 10), // store as integer
+      image: "",
+      // ... any other fields ...
+      createdAt: serverTimestamp()
+    });
+    console.log("New drink added with ID:", docRef.id);
+
+    // Close and reset the form
+    openModal(addDrinkModal, false);
+    addDrinkForm.reset();
+
+    // Refresh drinks
+    fetchDrinks();
+  } catch (error) {
+    console.error("Error adding new drink:", error);
+  }
+});
+
 
 // Expose functions globally so inline onclick handlers can find them
 window.openEditModal = openEditModal;

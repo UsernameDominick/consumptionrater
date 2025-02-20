@@ -4,18 +4,19 @@
   <meta charset="UTF-8" />
   <title>Consumption Rater</title>
   <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <header>
     <h1>Consumption Rater</h1>
-    <div id="profile-section">
-      <img 
-        src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
-        alt="Profile Icon" 
-        id="profile-icon" 
-      />
       <!-- Added missing element -->
       <span id="profile-username" class="hidden"></span>
+      <div id="profile-section">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile Icon" id="profile-icon" />
+        <span id="profile-username" class="hidden"></span>
+        <!-- New Add Drink Button -->
+        <button id="add-drink-btn" class="modern-btn">Add Drink</button>
+      </div>      
     </div>
   </header>
 
@@ -142,6 +143,35 @@
     <button id="save-edit-comment-btn" class="modern-btn">Save Changes</button>
   </div>
 </div>
+
+<!-- ADD DRINK MODAL -->
+<!-- ADD DRINK MODAL -->
+<div id="add-drink-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" id="close-add-drink-modal">&times;</span>
+    <!-- Added a margin below this title via inline style OR we can do it in CSS -->
+    <h2 style="margin-bottom:1rem;">Add a New Drink</h2>
+    <form id="add-drink-form">
+      <input 
+        type="text" 
+        id="new-drink-name" 
+        class="modern-input" 
+        placeholder="Drink Name" 
+        required 
+      />
+      <!-- Numeric input for caffeine in mg -->
+      <input 
+        type="number" 
+        id="new-drink-caffeine" 
+        class="modern-input" 
+        placeholder="Caffeine (mg)" 
+        required 
+      />
+      <button type="submit" class="modern-btn">Submit Drink</button>
+    </form>
+  </div>
+</div>
+
 
 <script type="module" src="script.js"></script>
 </body>

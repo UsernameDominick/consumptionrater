@@ -61,33 +61,44 @@ footer {
 
 /* ===== DRINKS GRID ===== */
 #drinks-container {
-  display: flex;
-  flex-wrap: wrap;         /* allow items to wrap onto new lines */
-  justify-content: center; /* center items horizontally */
-  gap: 1rem;               /* space between cards */
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  justify-items: center;
 }
+
 .drink-card {
-  max-width: 220px;   /* pick a width that fits your design */
-  text-align: center; /* center text and images inside the card */
+  background-color: rgb(47, 47, 47);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  /* Fix width & height so we can center vertically */
+  width: 200px;  
+  height: 300px;
+
+  /* Flex layout for perfect centering */
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  justify-content: center; /* center vertically */
+
+  text-align: center; /* keep text centered */
   margin: 1rem auto;
-  padding: 17px;
+  padding: 1rem;       /* some inner spacing */
 }
-.drink-card:hover {
-  transform: scale(1.02);
-}
+
 .drink-card img {
-  max-width: 100%; /* ensures the image doesn’t overflow the card */
-  height: 200px;
-  display: block;
-  margin: 0 auto;
-  padding: 25px;
+  max-width: 100%;
+  height: 150px;       /* fix the image height so it doesn't stretch */
+  object-fit: contain; /* keep proportions */
+  margin-bottom: 0.5rem; 
 }
+
 .drink-card .drink-name {
   font-weight: bold;
   margin-bottom: 0.2rem;
   color: #f0f0f0;
 }
+
 .drink-card .average-rating {
   font-size: 0.9rem;
   color: #ccc;
@@ -381,3 +392,125 @@ html {
   scrollbar-width: thin;                   /* "auto" or "thin" */
   scrollbar-color: #555 #2a2a2a;          /* thumb color, track color */
 }
+
+@media (max-width: 600px) {
+  /* Slightly larger base font for mobile (optional) */
+  body {
+    font-size: 1.1rem;
+  }
+  
+  /* Stack header/footer vertically on mobile */
+  header, footer {
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  /* Increase spacing for the profile icon/username so it’s not cramped */
+  #profile-section {
+    gap: 1rem;
+  }
+  
+  /* Bigger buttons & inputs for easier tapping */
+  .modern-btn,
+  .logout-btn,
+  .modern-input,
+  #search-input,
+  #filter-select,
+  #comment-input,
+  #edit-comment-text {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+  
+  /* Search/filter area stacks vertically */
+  #search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  /* 2-column grid for drinks */
+  #drinks-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;  /* spacing between columns/rows */
+    justify-items: center;
+  }
+  .drink-card {
+    background-color: rgb(47, 47, 47);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    width: 100%;   /* fixed card width */
+    max-width: none;
+    text-align: center;
+    margin: 0;      /* no extra margin needed in a grid */
+    padding: 0.75rem;
+  }
+  .drink-card img {
+    width: auto;
+    height: 180px;      /* same height for all cans */
+    object-fit: contain;
+    margin: 0 auto;
+    padding: 0;         /* remove extra padding for smaller scale */
+  }
+
+  .drink-card .drink-name {
+    font-size: 15px;    /* smaller text for drink names */
+    padding: 10px;
+  }
+
+  /* Adjust star size if you want them bigger or smaller on mobile */
+  .star {
+    font-size: 2rem;    /* set to 1.2rem if you want them smaller */
+    margin-right: 3px;
+  }
+
+  /* Make the modal scroll if content is too tall */
+  .modal-content {
+    max-height: 90vh;   /* fill up to 90% of viewport height */
+    overflow-y: auto;
+    max-width: 450px;   /* narrower modal on mobile */
+    padding: 1rem;
+  }
+
+  /* Info boxes stack vertically */
+  .info-box-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .info-box {
+    min-width: auto;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Add space between drink name & image in popup */
+  #drink-name {
+    margin-bottom: 1rem;
+  }
+
+  /* Smaller comments in reviews list */
+  #reviews-list li {
+    font-size: 0.9rem;  /* smaller text for comments */
+    padding: 10px;
+    line-height: 1.3;
+    margin: 8px 0;
+  }
+
+  /* If you want rating textareas smaller on mobile */
+  .rating-section textarea,
+  #comment-input {
+    font-size: 0.9rem;
+    height: 80px;
+  }
+
+  /* Buttons in the rating section can be smaller too */
+  .save-rating-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+
