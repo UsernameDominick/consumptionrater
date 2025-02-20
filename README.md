@@ -1,1 +1,1 @@
-# consumptionrater
+# Consumption Rater
