@@ -107,8 +107,8 @@
         <p id="brand-info">Monster</p>
       </div>
       <div class="info-box">
-        <h3>Other Info</h3>
-        <p id="extra-info">Some extra data</p>
+        <h3>Caffeine</h3>
+        <p id="extra-info"></p>
       </div>
     </div>
     <div id="all-reviews">
@@ -145,12 +145,10 @@
 </div>
 
 <!-- ADD DRINK MODAL -->
-<!-- ADD DRINK MODAL -->
 <div id="add-drink-modal" class="modal">
   <div class="modal-content">
     <span class="close-button" id="close-add-drink-modal">&times;</span>
-    <!-- Added a margin below this title via inline style OR we can do it in CSS -->
-    <h2 style="margin-bottom:1rem;">Add a New Drink</h2>
+    <h2>Add a New Drink</h2>
     <form id="add-drink-form">
       <input 
         type="text" 
@@ -159,7 +157,13 @@
         placeholder="Drink Name" 
         required 
       />
-      <!-- Numeric input for caffeine in mg -->
+      <input 
+        type="text" 
+        id="new-drink-brand" 
+        class="modern-input"
+        placeholder="Brand" 
+        required 
+      />
       <input 
         type="number" 
         id="new-drink-caffeine" 

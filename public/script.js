@@ -323,7 +323,11 @@ function openDrinkPopup(drink) {
   drinkImageElem.src = (drink.image || "").replace(/"/g, '');
   drinkDescElem.textContent = drink.description || '';
   avgRatingElem.textContent = drink.averageRating || '0';
+
+  // BRAND + CAFFEINE
+  document.getElementById('brand-info').textContent = drink.brand || 'Unknown';
   document.getElementById('extra-info').textContent = `${drink.caffeine || 0} mg`;
+
   renderAllReviews(drink);
 
   const userRating = drink.ratings.find(r => r.username === currentUser);
@@ -500,14 +504,18 @@ async function deleteReview(drinkId, reviewId) {
   }
 }
 
-// Get new drink modal elements
+// -----------------------
+//  ADD DRINK (with BRAND)
+// -----------------------
 const addDrinkBtn = document.getElementById('add-drink-btn');
 const addDrinkModal = document.getElementById('add-drink-modal');
 const closeAddDrinkModalBtn = document.getElementById('close-add-drink-modal');
 const addDrinkForm = document.getElementById('add-drink-form');
-const newDrinkCaffeineInput = document.getElementById('new-drink-caffeine');
+
+// New inputs: brand + caffeine + name
 const newDrinkNameInput = document.getElementById('new-drink-name');
-const newDrinkDescInput = document.getElementById('new-drink-desc');
+const newDrinkBrandInput = document.getElementById('new-drink-brand');
+const newDrinkCaffeineInput = document.getElementById('new-drink-caffeine');
 
 // Open the add-drink modal when the button is clicked
 addDrinkBtn.addEventListener('click', () => {
@@ -520,17 +528,23 @@ closeAddDrinkModalBtn.addEventListener('click', () => openModal(addDrinkModal, f
 // Handle new drink form submission
 addDrinkForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = newDrinkNameInput.value.trim();
-  const caffeineVal = newDrinkCaffeineInput.value.trim(); // numeric input
-  if (!name || !caffeineVal) return;
+  
+  const nameVal = newDrinkNameInput.value.trim();
+  const brandVal = newDrinkBrandInput.value.trim();
+  const caffeineVal = newDrinkCaffeineInput.value.trim();
+
+  if (!nameVal || !brandVal || !caffeineVal) {
+    console.error("All fields (Name, Brand, Caffeine) are required.");
+    return;
+  }
 
   try {
-    // Add the doc to Firestore with a "caffeine" field
+    // Add the doc to Firestore with name, brand, caffeine
     const docRef = await addDoc(collection(db, "drinks"), {
-      name: name,
-      caffeine: parseInt(caffeineVal, 10), // store as integer
+      name: nameVal,
+      brand: brandVal,
+      caffeine: parseInt(caffeineVal, 10),
       image: "",
-      // ... any other fields ...
       createdAt: serverTimestamp()
     });
     console.log("New drink added with ID:", docRef.id);
@@ -545,7 +559,6 @@ addDrinkForm.addEventListener('submit', async (e) => {
     console.error("Error adding new drink:", error);
   }
 });
-
 
 // Expose functions globally so inline onclick handlers can find them
 window.openEditModal = openEditModal;
