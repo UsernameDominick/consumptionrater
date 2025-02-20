@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;

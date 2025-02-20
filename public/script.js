@@ -3,6 +3,7 @@
 // 1) Imports from Firebase
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { 
   getFirestore,
   collection,
@@ -14,8 +15,15 @@ import {
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-// 2) Firebase Config
+// 2) Firebase Config (public)
 const firebaseConfig = {
   apiKey: "AIzaSyCWDCdWc2kXGmzzrQYwykwwg57JSuMayXs",
   authDomain: "consumption-rater.firebaseapp.com",
@@ -30,9 +38,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // 4) Global Variables
-let currentUser = null;
+let currentUser = null; // Will hold the Firebase UID
 let drinksData = [];
 let currentDrink = null;
 let currentRatingValue = 0;
@@ -43,10 +52,11 @@ const profileUsername = document.getElementById('profile-username');
 
 const loginModal = document.getElementById('login-modal');
 const closeLoginModalBtn = document.getElementById('close-login-modal');
-const loginUsername = document.getElementById('login-username');
+const loginUsername = document.getElementById('login-username'); // email input
 const loginPassword = document.getElementById('login-password');
 const loginSubmitBtn = document.getElementById('login-submit');
 const loginError = document.getElementById('login-error');
+const signupSubmitBtn = document.getElementById('signup-submit'); // optional sign-up button
 
 const profileModal = document.getElementById('profile-modal');
 const closeProfileModalBtn = document.getElementById('close-profile-modal');
@@ -67,34 +77,45 @@ const starRatingContainer = document.getElementById('star-rating');
 const commentInput = document.getElementById('comment-input');
 const saveRatingBtn = document.getElementById('save-rating-btn');
 
-// Edit modal elements (for editing a review)
 const editCommentModal = document.getElementById('edit-comment-modal');
 const closeEditCommentModalBtn = document.getElementById('close-edit-comment-modal');
-const editCommentDesc = document.getElementById('edit-comment-desc');  // Holds dataset.drinkId & dataset.reviewId
+const editCommentDesc = document.getElementById('edit-comment-desc'); // Holds drinkId & reviewId
 const editCommentText = document.getElementById('edit-comment-text');
 const saveEditCommentBtn = document.getElementById('save-edit-comment-btn');
 const editStarRatingContainer = document.getElementById('edit-star-rating');
 
-// Main page search/filter
 const searchInput = document.getElementById('search-input');
 const filterSelect = document.getElementById('filter-select');
 const drinksContainer = document.getElementById('drinks-container');
 
+const addDrinkBtn = document.getElementById('add-drink-btn');
+const addDrinkModal = document.getElementById('add-drink-modal');
+const closeAddDrinkModalBtn = document.getElementById('close-add-drink-modal');
+const addDrinkForm = document.getElementById('add-drink-form');
+const newDrinkNameInput = document.getElementById('new-drink-name');
+const newDrinkBrandInput = document.getElementById('new-drink-brand');
+const newDrinkCaffeineInput = document.getElementById('new-drink-caffeine');
+
 // -----------------------
 //   ON PAGE LOAD
 // -----------------------
-document.addEventListener('DOMContentLoaded', () => {
-  // Check if user info is saved in localStorage
-  const savedUser = localStorage.getItem('loggedInUser');
-  if (savedUser) {
-    currentUser = savedUser;
-    profileUsername.classList.remove('hidden');
-    profileUsername.textContent = currentUser;
-  }
-  
+document.addEventListener('DOMContentLoaded', async () => {
+  // Listen for changes in authentication state.
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user.uid;
+      profileUsername.classList.remove('hidden');
+      // Display displayName if available; otherwise, fallback to email or "Guest"
+      profileUsername.textContent = user.displayName || user.email || "Guest";
+    } else {
+      currentUser = null;
+      profileUsername.classList.add('hidden');
+      profileUsername.textContent = '';
+    }
+  });
+
   fetchDrinks();
 
-  // Profile icon click
   profileIcon.addEventListener('click', () => {
     if (!currentUser) {
       openModal(loginModal);
@@ -105,19 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   closeLoginModalBtn.addEventListener('click', () => openModal(loginModal, false));
   loginSubmitBtn.addEventListener('click', handleLogin);
-
+  if (signupSubmitBtn) {
+    signupSubmitBtn.addEventListener('click', handleSignup);
+  }
   closeProfileModalBtn.addEventListener('click', () => openModal(profileModal, false));
   logoutBtn.addEventListener('click', handleLogout);
-
   closeDrinkPopupBtn.addEventListener('click', () => openModal(drinkPopup, false));
   saveRatingBtn.addEventListener('click', saveRating);
-
   closeEditCommentModalBtn.addEventListener('click', () => openModal(editCommentModal, false));
   saveEditCommentBtn.addEventListener('click', saveEditedComment);
-
   profileSearch.addEventListener('input', filterProfileRatings);
   searchInput.addEventListener('input', renderDrinks);
   filterSelect.addEventListener('change', renderDrinks);
+  addDrinkBtn.addEventListener('click', () => openModal(addDrinkModal));
+  closeAddDrinkModalBtn.addEventListener('click', () => openModal(addDrinkModal, false));
+  addDrinkForm.addEventListener('submit', addNewDrink);
 });
 
 // -----------------------
@@ -128,43 +151,47 @@ function openModal(modal, show = true) {
 }
 
 // -----------------------
-//   LOGIN / LOGOUT
+//   AUTH: LOGIN / SIGNUP / LOGOUT
 // -----------------------
 async function handleLogin() {
-  const usernameVal = loginUsername.value.trim();
-  const passwordVal = loginPassword.value.trim();
+  const email = loginUsername.value.trim();
+  const password = loginPassword.value.trim();
   try {
-    // Use the username as the doc ID in "users"
-    const userDocRef = doc(db, "users", usernameVal);
-    const userDoc = await getDoc(userDocRef);
-    if (!userDoc.exists()) {
-      loginError.textContent = "User not found";
-      return;
-    }
-    const userData = userDoc.data();
-    if (userData.password !== passwordVal) {
-      loginError.textContent = "Invalid credentials";
-      return;
-    }
-    // Success
-    currentUser = usernameVal;
-    localStorage.setItem('loggedInUser', currentUser);  // Save login to localStorage
-    profileUsername.classList.remove('hidden');
-    profileUsername.textContent = currentUser;
+    await signInWithEmailAndPassword(auth, email, password);
     loginError.textContent = "";
     openModal(loginModal, false);
   } catch (error) {
     console.error("Login error", error);
-    loginError.textContent = "Error during login";
+    loginError.textContent = error.message || "Invalid credentials";
   }
 }
 
-function handleLogout() {
-  localStorage.removeItem('loggedInUser'); // Remove login from localStorage
-  currentUser = null;
-  profileUsername.classList.add('hidden');
-  profileUsername.textContent = '';
-  openModal(profileModal, false);
+async function handleSignup() {
+  const email = loginUsername.value.trim();
+  const password = loginPassword.value.trim();
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    // Prompt user for a display name (optional)
+    const chosenName = prompt("Enter a display name:");
+    if (chosenName) {
+      await updateProfile(user, { displayName: chosenName });
+    }
+    loginError.textContent = "";
+    openModal(loginModal, false);
+  } catch (error) {
+    console.error("Signup error", error);
+    loginError.textContent = error.message || "Error creating account";
+  }
+}
+
+async function handleLogout() {
+  try {
+    await signOut(auth);
+    openModal(profileModal, false);
+  } catch (error) {
+    console.error("Logout error", error);
+  }
 }
 
 // -----------------------
@@ -173,16 +200,14 @@ function handleLogout() {
 async function fetchDrinks() {
   try {
     const drinksSnapshot = await getDocs(collection(db, "drinks"));
-    // For each drink, fetch its "reviews" subcollection
     drinksData = await Promise.all(
-      drinksSnapshot.docs.map(async drinkDoc => {
+      drinksSnapshot.docs.map(async (drinkDoc) => {
         let drink = { id: drinkDoc.id, ...drinkDoc.data() };
         const reviewsSnapshot = await getDocs(collection(db, "drinks", drinkDoc.id, "reviews"));
         drink.ratings = reviewsSnapshot.docs.map(reviewDoc => ({
           id: reviewDoc.id,
           ...reviewDoc.data()
         }));
-        // Calculate average rating
         let sum = 0;
         drink.ratings.forEach(r => { sum += r.rating; });
         const avg = drink.ratings.length > 0 ? (sum / drink.ratings.length).toFixed(2) : 0;
@@ -206,31 +231,25 @@ function renderDrinks() {
     const title = (d.name || d.drinkName || "").toLowerCase();
     return title.includes(searchVal);
   });
-
   const filterVal = filterSelect.value;
   if (filterVal === 'highest-rating') {
     filtered.sort((a, b) => parseFloat(b.averageRating) - parseFloat(a.averageRating));
   } else if (filterVal === 'lowest-rating') {
     filtered.sort((a, b) => parseFloat(a.averageRating) - parseFloat(b.averageRating));
   }
-
   drinksContainer.innerHTML = '';
   filtered.forEach(drink => {
     const card = document.createElement('div');
     card.classList.add('drink-card');
-
     const img = document.createElement('img');
     img.src = (drink.image || "").replace(/"/g, '');
     img.alt = drink.name || drink.drinkName;
-
     const name = document.createElement('h3');
     name.classList.add('drink-name');
     name.textContent = drink.name || drink.drinkName;
-
     const avgRatingDiv = document.createElement('div');
     avgRatingDiv.classList.add('average-rating');
     avgRatingDiv.textContent = `Avg Rating: ${drink.averageRating || "N/A"}`;
-
     card.appendChild(img);
     card.appendChild(name);
     card.appendChild(avgRatingDiv);
@@ -244,12 +263,10 @@ function renderDrinks() {
 // -----------------------
 function openProfileModal() {
   if (!currentUser) return;
-  welcomeMsg.textContent = `Welcome, ${currentUser}!`;
-
-  // Gather user reviews from drinksData
+  welcomeMsg.textContent = `Welcome, ${profileUsername.textContent}!`;
   const userReviews = [];
   drinksData.forEach(drink => {
-    const userRating = drink.ratings.find(r => r.username === currentUser);
+    const userRating = drink.ratings.find(r => r.userId === currentUser);
     if (userRating) {
       userReviews.push({
         drinkId: drink.id,
@@ -260,26 +277,22 @@ function openProfileModal() {
       });
     }
   });
-
   renderProfileRatings(userReviews);
   openModal(profileModal);
 }
 
 function renderProfileRatings(ratings) {
   myRatingsList.innerHTML = '';
-
   if (ratings.length === 0) {
     myRatingsList.innerHTML = '<p>You have not rated any drinks yet.</p>';
     profileStats.textContent = '';
     return;
   }
-
   let total = ratings.length;
   let sum = 0;
   ratings.forEach(r => { sum += r.rating; });
   let avg = (sum / total).toFixed(2);
   profileStats.textContent = `You have rated ${total} drink(s). Your average rating is ${avg}/10.`;
-
   ratings.forEach(r => {
     const container = document.createElement('div');
     container.classList.add('rating-item');
@@ -318,19 +331,17 @@ function filterProfileRatings() {
 function openDrinkPopup(drink) {
   currentDrink = drink;
   currentRatingValue = 0;
-
   drinkNameElem.textContent = drink.name || drink.drinkName;
   drinkImageElem.src = (drink.image || "").replace(/"/g, '');
   drinkDescElem.textContent = drink.description || '';
   avgRatingElem.textContent = drink.averageRating || '0';
-
-  // BRAND + CAFFEINE
+  
+  // Set brand and caffeine info
   document.getElementById('brand-info').textContent = drink.brand || 'Unknown';
   document.getElementById('extra-info').textContent = `${drink.caffeine || 0} mg`;
-
+  
   renderAllReviews(drink);
-
-  const userRating = drink.ratings.find(r => r.username === currentUser);
+  const userRating = drink.ratings.find(r => r.userId === currentUser);
   if (userRating) {
     currentRatingValue = userRating.rating;
     commentInput.value = userRating.comment || '';
@@ -345,32 +356,25 @@ function openDrinkPopup(drink) {
     saveRatingBtn.style.display = "inline-block";
   }
   renderStarRating(currentRatingValue);
-
   openModal(drinkPopup);
 }
 
 function renderAllReviews(drink) {
   reviewsList.innerHTML = '';
-  if (!drink.ratings || drink.ratings.length === 0) {
-    return;
-  }
+  if (!drink.ratings || drink.ratings.length === 0) return;
   drink.ratings.forEach(r => {
     const li = document.createElement('li');
-
     const usernameDiv = document.createElement('div');
     usernameDiv.innerHTML = `<h3>${r.username}</h3>`;
     li.appendChild(usernameDiv);
-
     const ratingDiv = document.createElement('div');
     ratingDiv.innerHTML = `${ratingToStars(r.rating)} (${r.rating}/10)`;
     li.appendChild(ratingDiv);
-
     if (r.comment) {
       const commentP = document.createElement('p');
       commentP.textContent = r.comment;
       li.appendChild(commentP);
     }
-
     reviewsList.appendChild(li);
   });
 }
@@ -378,12 +382,8 @@ function renderAllReviews(drink) {
 function ratingToStars(rating) {
   const starRating = Math.round(rating);
   let stars = '';
-  for (let i = 0; i < starRating; i++) {
-    stars += '★';
-  }
-  for (let i = starRating; i < 10; i++) {
-    stars += '☆';
-  }
+  for (let i = 0; i < starRating; i++) stars += '★';
+  for (let i = starRating; i < 10; i++) stars += '☆';
   return stars;
 }
 
@@ -397,9 +397,7 @@ function renderStarRating(userRating) {
     const star = document.createElement('span');
     star.classList.add('star');
     star.innerHTML = '&#9733;';
-    if (i <= userRating) {
-      star.classList.add('selected');
-    }
+    if (i <= userRating) star.classList.add('selected');
     star.addEventListener('mouseover', () => highlightStars(i));
     star.addEventListener('mouseout', () => highlightStars(currentRatingValue));
     star.addEventListener('click', () => {
@@ -412,9 +410,7 @@ function renderStarRating(userRating) {
 
 function highlightStars(count) {
   const stars = starRatingContainer.querySelectorAll('.star');
-  stars.forEach((star, idx) => {
-    star.classList.toggle('hovered', idx < count);
-  });
+  stars.forEach((star, idx) => star.classList.toggle('hovered', idx < count));
 }
 
 // -----------------------
@@ -425,16 +421,14 @@ async function saveRating() {
   try {
     const ratingVal = currentRatingValue;
     const commentVal = commentInput.value.trim();
-
-    const newReviewRef = await addDoc(collection(db, "drinks", currentDrink.id.toString(), "reviews"), {
-      username: currentUser,
+    await addDoc(collection(db, "drinks", currentDrink.id.toString(), "reviews"), {
+      username: profileUsername.textContent, // display name (or email)
+      userId: currentUser, // Firebase Auth UID
       rating: ratingVal,
       comment: commentVal,
       timestamp: serverTimestamp()
     });
-    console.log("Rating saved in Firestore with ID:", newReviewRef.id);
-
-    // Refresh drinks and re-render (no modal for profile change here)
+    console.log("Rating saved in Firestore");
     await fetchDrinks();
     openModal(drinkPopup, false);
   } catch (error) {
@@ -459,9 +453,7 @@ function renderEditStarRating(currentRating) {
     const star = document.createElement('span');
     star.classList.add('star');
     star.innerHTML = '★';
-    if (i <= currentRating) {
-      star.classList.add('selected');
-    }
+    if (i <= currentRating) star.classList.add('selected');
     star.addEventListener('click', () => {
       currentRating = i;
       renderEditStarRating(i);
@@ -507,59 +499,32 @@ async function deleteReview(drinkId, reviewId) {
 // -----------------------
 //  ADD DRINK (with BRAND)
 // -----------------------
-const addDrinkBtn = document.getElementById('add-drink-btn');
-const addDrinkModal = document.getElementById('add-drink-modal');
-const closeAddDrinkModalBtn = document.getElementById('close-add-drink-modal');
-const addDrinkForm = document.getElementById('add-drink-form');
-
-// New inputs: brand + caffeine + name
-const newDrinkNameInput = document.getElementById('new-drink-name');
-const newDrinkBrandInput = document.getElementById('new-drink-brand');
-const newDrinkCaffeineInput = document.getElementById('new-drink-caffeine');
-
-// Open the add-drink modal when the button is clicked
-addDrinkBtn.addEventListener('click', () => {
-  openModal(addDrinkModal);
-});
-
-// Close the modal when the close button is clicked
-closeAddDrinkModalBtn.addEventListener('click', () => openModal(addDrinkModal, false));
-
-// Handle new drink form submission
-addDrinkForm.addEventListener('submit', async (e) => {
+async function addNewDrink(e) {
   e.preventDefault();
-  
   const nameVal = newDrinkNameInput.value.trim();
   const brandVal = newDrinkBrandInput.value.trim();
   const caffeineVal = newDrinkCaffeineInput.value.trim();
-
   if (!nameVal || !brandVal || !caffeineVal) {
     console.error("All fields (Name, Brand, Caffeine) are required.");
     return;
   }
-
   try {
-    // Add the doc to Firestore with name, brand, caffeine
-    const docRef = await addDoc(collection(db, "drinks"), {
+    await addDoc(collection(db, "drinks"), {
       name: nameVal,
       brand: brandVal,
       caffeine: parseInt(caffeineVal, 10),
       image: "",
       createdAt: serverTimestamp()
     });
-    console.log("New drink added with ID:", docRef.id);
-
-    // Close and reset the form
+    console.log("New drink added successfully");
     openModal(addDrinkModal, false);
     addDrinkForm.reset();
-
-    // Refresh drinks
     fetchDrinks();
   } catch (error) {
     console.error("Error adding new drink:", error);
   }
-});
+}
 
-// Expose functions globally so inline onclick handlers can find them
+// Expose functions globally for inline event handlers
 window.openEditModal = openEditModal;
 window.deleteReview = deleteReview;

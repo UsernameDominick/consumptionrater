@@ -42,29 +42,37 @@
     <p>© 2025 - Consumption Rater</p>
   </footer>
 
-  <!-- LOGIN MODAL -->
-  <div id="login-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" id="close-login-modal">&times;</span>
-      <h2>Login</h2>
-      <input 
-        type="text" 
-        id="login-username" 
-        placeholder="Username" 
-        class="modern-input" 
-        autocomplete="off"
-      />
-      <input 
-        type="password" 
-        id="login-password" 
-        placeholder="Password" 
-        class="modern-input" 
-        autocomplete="new-password"
-      />
-      <button id="login-submit" class="modern-btn">Log In</button>
-      <p id="login-error" class="error-text"></p>
-    </div>
+<!-- LOGIN MODAL -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" id="close-login-modal">&times;</span>
+    <h2>Login / Sign Up</h2>
+    
+    <!-- Email and Password fields for both login and sign-up -->
+    <input 
+      type="email" 
+      id="login-username" 
+      placeholder="Email" 
+      class="modern-input" 
+      autocomplete="off"
+    />
+    <input 
+      type="password" 
+      id="login-password" 
+      placeholder="Password" 
+      class="modern-input" 
+      autocomplete="new-password"
+    />
+
+    <!-- Buttons for login and sign-up -->
+    <button id="login-submit" class="modern-btn">Log In</button>
+    <button id="signup-submit" class="modern-btn" style="background-color: #4caf50;">
+      Sign Up
+    </button>
+
+    <p id="login-error" class="error-text"></p>
   </div>
+</div>
 
   <!-- PROFILE MODAL -->
   <div id="profile-modal" class="modal">
@@ -86,97 +94,91 @@
     </div>
   </div>
 
-<!-- DRINK POPUP -->
-<div id="drink-popup" class="modal">
-  <div class="modal-content drink-popup-content">
-    <span class="close-button" id="close-drink-popup">&times;</span>
-    <h2 id="drink-name"></h2>
-    <div class="drink-popup-subtitle">
-      <div class="image-container">
-        <img id="drink-image" alt="Energy Drink" />
+  <!-- DRINK POPUP -->
+  <div id="drink-popup" class="modal">
+    <div class="modal-content drink-popup-content">
+      <span class="close-button" id="close-drink-popup">&times;</span>
+      <h2 id="drink-name"></h2>
+      <div class="drink-popup-subtitle">
+        <div class="image-container">
+          <img id="drink-image" alt="Energy Drink" />
+        </div>
+        <p id="drink-description"></p>
       </div>
-      <p id="drink-description"></p>
-    </div>
-    <div class="info-box-container">
-      <div class="info-box">
-        <h3>Average Rating</h3>
-        <p id="average-rating"></p>
+      <div class="info-box-container">
+        <div class="info-box">
+          <h3>Average Rating</h3>
+          <p id="average-rating"></p>
+        </div>
+        <div class="info-box">
+          <h3>Brand</h3>
+          <p id="brand-info">Monster</p>
+        </div>
+        <div class="info-box">
+          <h3>Caffeine</h3>
+          <p id="extra-info"></p>
+        </div>
       </div>
-      <div class="info-box">
-        <h3>Brand</h3>
-        <p id="brand-info">Monster</p>
+      <div id="all-reviews">
+        <h2>Reviews</h2>
+        <ul id="reviews-list"></ul>
       </div>
-      <div class="info-box">
-        <h3>Caffeine</h3>
-        <p id="extra-info"></p>
+      <div class="rating-section">
+        <div id="star-rating" class="star-rating"></div>
+        <textarea id="comment-input" placeholder="Your comment..."></textarea>
+        <button id="save-rating-btn" class="modern-btn">Save Rating</button>
       </div>
-    </div>
-    <div id="all-reviews">
-      <h2>Reviews</h2>
-      <ul id="reviews-list"></ul>
-    </div>
-    <div class="rating-section">
-      <div id="star-rating" class="star-rating"></div>
-      <textarea id="comment-input" placeholder="Your comment..."></textarea>
-      <button id="save-rating-btn" class="modern-btn">Save Rating</button>
     </div>
   </div>
-</div>
 
-<!-- EDIT COMMENT MODAL -->
-<div id="edit-comment-modal" class="modal">
-  <div class="modal-content">
-    <span class="close-button" id="close-edit-comment-modal">&times;</span>
-    <h2>Edit Review</h2>
-    
-    <!-- Ensure both drink id and timestamp are stored -->
-    <p id="edit-comment-desc" data-drink-id="" data-timestamp="">
-      <!-- Optionally, display info such as "Editing review from:" -->
-    </p>
-    
-    <!-- Vertical container for star rating and comment box -->
-    <div class="star-and-comment-container">
-      <div id="edit-star-rating" class="star-rating"></div>
-      <textarea id="edit-comment-text" rows="3"></textarea>
+  <!-- EDIT COMMENT MODAL -->
+  <div id="edit-comment-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="close-edit-comment-modal">&times;</span>
+      <h2>Edit Review</h2>
+      <p id="edit-comment-desc" data-drink-id="" data-timestamp="">
+        <!-- Optionally, display info such as "Editing review from:" -->
+      </p>
+      <div class="star-and-comment-container">
+        <div id="edit-star-rating" class="star-rating"></div>
+        <textarea id="edit-comment-text" rows="3"></textarea>
+      </div>
+      <button id="save-edit-comment-btn" class="modern-btn">Save Changes</button>
     </div>
-    
-    <button id="save-edit-comment-btn" class="modern-btn">Save Changes</button>
   </div>
-</div>
 
-<!-- ADD DRINK MODAL -->
-<div id="add-drink-modal" class="modal">
-  <div class="modal-content">
-    <span class="close-button" id="close-add-drink-modal">&times;</span>
-    <h2>Add a New Drink</h2>
-    <form id="add-drink-form">
-      <input 
-        type="text" 
-        id="new-drink-name" 
-        class="modern-input" 
-        placeholder="Drink Name" 
-        required 
-      />
-      <input 
-        type="text" 
-        id="new-drink-brand" 
-        class="modern-input"
-        placeholder="Brand" 
-        required 
-      />
-      <input 
-        type="number" 
-        id="new-drink-caffeine" 
-        class="modern-input" 
-        placeholder="Caffeine (mg)" 
-        required 
-      />
-      <button type="submit" class="modern-btn">Submit Drink</button>
-    </form>
+  <!-- ADD DRINK MODAL -->
+  <div id="add-drink-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="close-add-drink-modal">&times;</span>
+      <h2>Add a New Drink</h2>
+      <form id="add-drink-form">
+        <input 
+          type="text" 
+          id="new-drink-name" 
+          class="modern-input" 
+          placeholder="Drink Name" 
+          required 
+        />
+        <input 
+          type="text" 
+          id="new-drink-brand" 
+          class="modern-input"
+          placeholder="Brand" 
+          required 
+        />
+        <input 
+          type="number" 
+          id="new-drink-caffeine" 
+          class="modern-input" 
+          placeholder="Caffeine (mg)" 
+          required 
+        />
+        <button type="submit" class="modern-btn">Submit Drink</button>
+      </form>
+    </div>
   </div>
-</div>
 
-
-<script type="module" src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
